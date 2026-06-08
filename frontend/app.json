@@ -1,26 +1,32 @@
 {
   "expo": {
-    "name": "frontend",
+    "name": "FreshFold",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "freshfold",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.freshfold.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Required to attach photos to your laundry orders"
+      }
     },
     "android": {
+      "package": "com.freshfold.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000"
+        "backgroundColor": "#3B82F6"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": ["NOTIFICATIONS"]
     },
     "web": {
       "bundler": "metro",
-      "output": "single",
+      "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -31,10 +37,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#3B82F6"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-notifications",
+      "./plugins/withSuprSendFcm"
     ],
     "experiments": {
       "typedRoutes": true

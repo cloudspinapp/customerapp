@@ -1,0 +1,98 @@
+{
+  "theme": "light",
+  "archetype": "3 (Pastel & Soft)",
+  "vibe": "Fresh, clean, effortless, and approachable.",
+  "layout_strategy": "Mobile-First App Layout. On desktop, center the content inside a max-w-md container with a shadow to mimic a mobile screen, or just make it fully responsive. Use a sticky bottom navigation bar for core tabs (Home, Orders, Notifications, Profile). Use sticky headers with backdrop-blur-xl (Glassmorphism).",
+  "typography": {
+    "font_families": {
+      "heading": "Outfit, sans-serif",
+      "body": "Manrope, sans-serif"
+    },
+    "scale": {
+      "h1": "text-3xl font-semibold tracking-tight",
+      "h2": "text-2xl font-semibold tracking-tight",
+      "h3": "text-xl font-medium",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm text-slate-500",
+      "micro": "text-xs font-medium uppercase tracking-wider text-slate-400"
+    }
+  },
+  "colors": {
+    "primary": {
+      "DEFAULT": "#3B82F6",
+      "light": "#EFF6FF",
+      "hover": "#2563EB"
+    },
+    "background": "#F8FAFC",
+    "surface": "#FFFFFF",
+    "text": {
+      "primary": "#0F172A",
+      "secondary": "#64748B",
+      "disabled": "#94A3B8"
+    },
+    "border": "#E2E8F0",
+    "status": {
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444",
+      "info": "#3B82F6"
+    }
+  },
+  "spacing_and_radius": {
+    "padding_mobile_container": "p-4 or p-6",
+    "radius_card": "rounded-3xl",
+    "radius_button": "rounded-full",
+    "radius_input": "rounded-2xl"
+  },
+  "components": {
+    "buttons": "Primary: bg-blue-500 text-white rounded-full py-4 px-6 font-medium shadow-md shadow-blue-500/20. Secondary: bg-blue-50 text-blue-600 rounded-full py-4 px-6 font-medium.",
+    "cards": "bg-white rounded-3xl p-5 border border-slate-100 shadow-sm.",
+    "inputs": "bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4 text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all.",
+    "bottom_nav": "Fixed bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-slate-100 pb-safe pt-2 px-6 flex justify-between items-center z-50.",
+    "service_selector": "Card with an icon, title, and a small counter (-, 0, +) at the bottom. Selected state gives the card a border-blue-500 and bg-blue-50.",
+    "date_time_picker": "Horizontal scrollable list for dates (Day of week + Date number). Grid for time slots. Selected items turn solid primary color."
+  },
+  "motion": {
+    "hover": "Slight lift (-translate-y-1) and enhanced shadow on interactive cards.",
+    "page_transition": "Framer motion page variants (fade in, slide up slightly).",
+    "tap": "scale-95 on buttons for tactile feedback."
+  },
+  "media": {
+    "icons_library": "lucide-react",
+    "image_urls": [
+      {
+        "category": "home_banner_1",
+        "url": "https://static.prod-images.emergentagent.com/jobs/1644b8bc-ad0f-4fa8-890a-bd74752287e5/images/bf0992d02ce8e2690561a657acd5619dcd5fa49cbbf1b6e276688635f59175ee.png",
+        "description": "Clean neatly folded pastel towels, fresh laundry aesthetic"
+      },
+      {
+        "category": "home_banner_2",
+        "url": "https://static.prod-images.emergentagent.com/jobs/1644b8bc-ad0f-4fa8-890a-bd74752287e5/images/3318cd611bf95c580bb9291ab53e68d57f1939243e93af16f82425d37b242e43.png",
+        "description": "Person relaxing in a modern bright room, carefree lifestyle"
+      },
+      {
+        "category": "empty_state_orders",
+        "url": "https://static.prod-images.emergentagent.com/jobs/1644b8bc-ad0f-4fa8-890a-bd74752287e5/images/1fc15f02035de963451ebf9b899b58c8fa1cf60d65f8965809720dd235442245.png",
+        "description": "3D clay illustration of a laundry delivery box"
+      },
+      {
+        "category": "profile_avatar",
+        "url": "https://images.pexels.com/photos/5876695/pexels-photo-5876695.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Smiling female avatar for the user profile"
+      }
+    ]
+  },
+  "key_screens_and_flow": {
+    "auth": "OTP mobile number signup. Clean large typography, minimal form.",
+    "home": "Top user greeting + location. Swiper for banners. CSS Grid for services (Wash & Fold, Dry Clean, Ironing, Steam Press, Premium Wash). Floating action bar activates when items > 0 to 'Schedule Pickup'.",
+    "schedule_pickup": "Sequential flow (or single scrolling bottom sheet): 1. Select Date, 2. Select Time Slot, 3. Select/Add Address, 4. Confirm Booking.",
+    "orders": "Tabs: 'Active' & 'Past'. Cards display order ID, date, status, total cost. Clicking opens detail view.",
+    "order_detail": "Vertical timeline tracking (Order Placed, Picked Up, Washing, Out for Delivery, Delivered).",
+    "profile": "List of settings, 'Saved Addresses' management screen, past orders link.",
+    "notifications": "List of recent alerts, unread items highlighted with a blue dot or background tint."
+  },
+  "accessibility_and_testing": {
+    "test_ids": "CRITICAL: All interactive elements (buttons, inputs, selectable cards, tabs, menu items) MUST have a 'data-testid' attribute using kebab-case (e.g., 'login-submit-button', 'service-wash-fold-card', 'nav-profile-tab').",
+    "contrast": "Ensure sufficient contrast for text, especially when using primary-light backgrounds."
+  }
+}
