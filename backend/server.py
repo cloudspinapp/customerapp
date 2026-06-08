@@ -513,6 +513,18 @@ async def cloudspin_schedule_pickup(payload: dict):
         "pickup_date": pickup_date, "pickup_slot": pickup_slot, "services": services,
     })
 
+@api_router.post("/cloudspin/orders/index")
+async def cloudspin_orders_index(payload: dict):
+    customer_id = str(payload.get("customer_id", "")).strip()
+    order_type = str(payload.get("order_type", "active")).strip().lower()
+    if not customer_id:
+        raise HTTPException(400, "customer_id is required")
+    if order_type not in ("active", "past"):
+        order_type = "active"
+    return await _cs_post("orders/index", {
+        "customer_id": customer_id, "order_type": order_type,
+    })
+
 # ---------- Root ----------
 @api_router.get("/")
 async def root():

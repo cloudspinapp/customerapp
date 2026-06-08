@@ -61,6 +61,15 @@ export type AddressInput = {
   is_default?: "0" | "1";
 };
 
+export type CloudspinOrder = {
+  ID: string;
+  order_no: string;
+  final_amount: string;        // numeric string ("0", "850", ...)
+  created_date: string;        // "YYYY-MM-DD HH:MM:SS"
+  delivery_date: string;       // "YYYY-MM-DD HH:MM:SS"
+  order_status: string;        // free-form status text from upstream
+};
+
 // ----- API methods -----
 export const cloudspin = {
   // POST https://cloudspin.in/api/login/authenticate  body: txtcontact=<phone>
@@ -155,6 +164,12 @@ export const cloudspin = {
     pickup_slot: string;     // e.g. "03:00 PM - 05:00 PM"
     services: string;        // comma-separated service names
   }) => postJson<CloudspinBase>("/cloudspin/services/schedule", params),
+
+  // POST /api/orders/index { customer_id, order_type: "active" | "past" }
+  listOrders: (customer_id: string, order_type: "active" | "past") =>
+    postJson<CloudspinBase<CloudspinOrder[]>>(
+      "/cloudspin/orders/index", { customer_id, order_type },
+    ),
 };
 
 export type CloudspinService = {
