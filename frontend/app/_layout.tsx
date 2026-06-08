@@ -2,7 +2,7 @@ import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import * as Linking from "expo-linking";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -47,10 +47,16 @@ if (Platform.OS === "android") {
 export default function RootLayout() {
   const [loaded, error] = useIconFonts();
   const router = useRouter();
+  // On web, defer first render until after hydration so the static HTML
+  // (built without a current time, locale or storage) cannot mismatch the
+  // dynamic client tree.
+  const [hydrated, setHydrated] = useState(Platform.OS !== "web");
 
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
+
+  useEffect(() => { if (Platform.OS === "web") setHydrated(true); }, []);
 
   useEffect(() => {
     if (Platform.OS === "web") return;
@@ -76,6 +82,7 @@ export default function RootLayout() {
   }, [router]);
 
   if (!loaded && !error) return null;
+  if (!hydrated) return null;
 
   return (
     <SafeAreaProvider>
