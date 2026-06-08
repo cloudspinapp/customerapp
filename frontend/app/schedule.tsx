@@ -54,11 +54,12 @@ export default function ScheduleScreen() {
     return () => clearInterval(id);
   }, []);
 
-  // For today's date, only show slots whose START time is still in the future.
+  // For today's date, show a slot only while its END time is still in the future
+  // (so the in-progress slot stays selectable until it ends).
   const visibleSlots = useMemo(() => {
     if (date !== today()) return SLOTS;
     const curMin = now.getHours() * 60 + now.getMinutes();
-    return SLOT_HOURS.filter((h) => h * 60 > curMin).map(
+    return SLOT_HOURS.filter((h) => (h + 2) * 60 > curMin).map(
       (h) => `${fmt12(h)} - ${fmt12(h + 2)}`,
     );
   }, [date, now]);
