@@ -144,6 +144,17 @@ export const cloudspin = {
     postJson<CloudspinBase<CloudspinAddress[]>>(
       "/cloudspin/customers/delete_address", { customer_id, address_id },
     ),
+
+  // POST /api/services/schedule
+  //   { customer_id, address_id, pickup_date(DD-MM-YYYY),
+  //     pickup_slot("03:00 PM - 05:00 PM"), services("Dryclean, Wash and Fold") }
+  schedulePickup: (params: {
+    customer_id: string;
+    address_id: string;
+    pickup_date: string;     // DD-MM-YYYY
+    pickup_slot: string;     // e.g. "03:00 PM - 05:00 PM"
+    services: string;        // comma-separated service names
+  }) => postJson<CloudspinBase>("/cloudspin/services/schedule", params),
 };
 
 export type CloudspinService = {

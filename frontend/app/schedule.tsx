@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius } from "@/src/lib/theme";
-import { api } from "@/src/lib/api";
 import { cloudspin, CloudspinAddress } from "@/src/lib/cloudspin";
 import { storage } from "@/src/utils/storage";
 
@@ -90,19 +89,39 @@ export default function ScheduleScreen() {
 
   useFocusEffect(useCallback(() => { setLoadingAddr(true); loadAddresses(); }, [loadAddresses]));
 
+  const [toast, setToast] = useState<{ msg: string; kind: "info" | "error" } | null>(null);
+  const showToast = (msg: string, kind: "info" | "error" = "info") => {
+    setToast({ msg, kind });
+    setTimeout(() => setToast(null), 2400);
+  };
+
   const confirm = async () => {
-    if (!date || !slot) { Alert.alert("Please pick a date & time slot"); return; }
-    if (!addressId) { Alert.alert("Please add a pickup address"); return; }
+    if (!date || !slot) { showToast("Please pick a date & time slot", "error"); return; }
+    if (!addressId) { showToast("Please add a pickup address", "error"); return; }
+    const cid = await storage.getItem<string>("cloudspin_customer_id", "");
+    if (!cid) { showToast("Please log in again", "error"); return; }
+    // ISO YYYY-MM-DD -> DD-MM-YYYY
+    const [y, m, d] = date.split("-");
+    const pickup_date = `${d}-${m}-${y}`;
+    const services = (items as { service_name?: string }[])
+      .map((i) => (i.service_name || "").trim())
+      .filter(Boolean)
+      .join(", ");
     setLoading(true);
     try {
-      await api.createOrder({
-        items, pickup_date: date, pickup_slot: slot, address_id: addressId, notes: "",
+      const res = await cloudspin.schedulePickup({
+        customer_id: cid,
+        address_id: addressId,
+        pickup_date,
+        pickup_slot: slot,
+        services,
       });
-      Alert.alert("Pickup has been scheduled", `${date} • ${slot}`, [
-        { text: "OK", onPress: () => router.replace("/(tabs)/home") },
-      ]);
-    } catch (e: any) { Alert.alert("Could not place order", e.message); }
-    finally { setLoading(false); }
+      if (!res.status) { showToast(res.message || "Could not schedule pickup", "error"); return; }
+      showToast(res.message || "Pickup scheduled");
+      setTimeout(() => router.replace("/(tabs)/home"), 700);
+    } catch (e: any) {
+      showToast(e?.message || "Could not schedule pickup", "error");
+    } finally { setLoading(false); }
   };
 
   return (
@@ -205,6 +224,21 @@ export default function ScheduleScreen() {
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmText}>Confirm Booking</Text>}
         </TouchableOpacity>
       </View>
+
+      {toast ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.toast,
+            { bottom: insets.bottom + 96, backgroundColor: toast.kind === "error" ? "#FEE2E2" : colors.text },
+          ]}
+          testID="schedule-toast"
+        >
+          <Text style={[styles.toastText, toast.kind === "error" ? { color: colors.error } : { color: "#fff" }]}>
+            {toast.msg}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -224,6 +258,8 @@ const styles = StyleSheet.create({
   activeChip: { backgroundColor: colors.primary, borderColor: colors.primary },
   slotText: { color: colors.text, fontWeight: "600", fontSize: 13 },
   noSlotsText: { color: colors.textSecondary, fontSize: 13, paddingVertical: 12 },
+  toast: { position: "absolute", left: 20, right: 20, padding: 14, borderRadius: 12, alignItems: "center" },
+  toastText: { fontWeight: "600", fontSize: 14 },
   linkText: { color: colors.primary, fontWeight: "600", fontSize: 13 },
   emptyAddr: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, alignItems: "center", marginTop: 12, borderWidth: 1, borderColor: colors.borderLight },
   emptyAddrText: { color: colors.textSecondary, marginTop: 8, marginBottom: 12 },

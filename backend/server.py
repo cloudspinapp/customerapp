@@ -495,6 +495,24 @@ async def cloudspin_address_delete(payload: dict):
         "customer_id": customer_id, "address_id": address_id,
     })
 
+@api_router.post("/cloudspin/services/schedule")
+async def cloudspin_schedule_pickup(payload: dict):
+    customer_id = str(payload.get("customer_id", "")).strip()
+    address_id = str(payload.get("address_id", "")).strip()
+    pickup_date = str(payload.get("pickup_date", "")).strip()  # DD-MM-YYYY
+    pickup_slot = str(payload.get("pickup_slot", "")).strip()
+    services = str(payload.get("services", "")).strip()
+    missing = [k for k, v in {
+        "customer_id": customer_id, "address_id": address_id,
+        "pickup_date": pickup_date, "pickup_slot": pickup_slot, "services": services,
+    }.items() if not v]
+    if missing:
+        raise HTTPException(400, f"Missing required fields: {', '.join(missing)}")
+    return await _cs_post("services/schedule", {
+        "customer_id": customer_id, "address_id": address_id,
+        "pickup_date": pickup_date, "pickup_slot": pickup_slot, "services": services,
+    })
+
 # ---------- Root ----------
 @api_router.get("/")
 async def root():
