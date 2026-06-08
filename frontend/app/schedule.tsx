@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius } from "@/src/lib/theme";
 import { api } from "@/src/lib/api";
+import { cloudspin, CloudspinAddress } from "@/src/lib/cloudspin";
+import { storage } from "@/src/utils/storage";
 
 // 2-hour slots between 07:00 and 22:00 (10 PM)
 const SLOT_HOURS = [7, 9, 11, 13, 15, 17, 19]; // start hours; each slot is 2 hours
@@ -43,7 +45,7 @@ export default function ScheduleScreen() {
   const [date, setDate] = useState<string>(dates[0]?.iso);
   const [slot, setSlot] = useState<string>("");
   const [now, setNow] = useState<Date>(new Date());
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<CloudspinAddress[]>([]);
   const [addressId, setAddressId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [loadingAddr, setLoadingAddr] = useState(true);
@@ -69,15 +71,24 @@ export default function ScheduleScreen() {
     if (slot && !visibleSlots.includes(slot)) setSlot("");
   }, [visibleSlots, slot]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const a = await api.addresses();
-        setAddresses(a);
-        if (a.length) setAddressId(a.find((x: any) => x.is_default)?.id || a[0].id);
-      } finally { setLoadingAddr(false); }
-    })();
+  const loadAddresses = useCallback(async () => {
+    try {
+      const cid = await storage.getItem<string>("cloudspin_customer_id", "");
+      if (!cid) { setAddresses([]); return; }
+      const res = await cloudspin.listAddresses(cid);
+      const list = res.status && Array.isArray(res.data) ? res.data : [];
+      setAddresses(list);
+      setAddressId((prev) => {
+        if (prev && list.some((a) => a.ID === prev)) return prev;
+        const def = list.find((a) => String(a.is_default) === "1");
+        return def ? def.ID : (list[0]?.ID || "");
+      });
+    } catch {
+      setAddresses([]);
+    } finally { setLoadingAddr(false); }
   }, []);
+
+  useFocusEffect(useCallback(() => { setLoadingAddr(true); loadAddresses(); }, [loadAddresses]));
 
   const confirm = async () => {
     if (!date || !slot) { Alert.alert("Please pick a date & time slot"); return; }
@@ -153,15 +164,24 @@ export default function ScheduleScreen() {
               </TouchableOpacity>
             </View>
           ) : addresses.map((a) => {
-            const selected = addressId === a.id;
+            const selected = addressId === a.ID;
+            const isDefault = String(a.is_default) === "1";
             return (
-              <TouchableOpacity key={a.id} testID={`address-${a.id}`} onPress={() => setAddressId(a.id)} style={[styles.addrCard, selected && styles.addrCardActive]}>
+              <TouchableOpacity key={a.ID} testID={`sched-address-${a.ID}`} onPress={() => setAddressId(a.ID)} style={[styles.addrCard, selected && styles.addrCardActive]}>
                 <View style={[styles.radio, selected && { borderColor: colors.primary }]}>
                   {selected && <View style={styles.radioDot} />}
                 </View>
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={styles.addrLabel}>{a.label} • {a.full_name}</Text>
-                  <Text style={styles.addrLine}>{a.line1}{a.line2 ? `, ${a.line2}` : ""}, {a.city} - {a.pincode}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={styles.addrLabel}>{a.label || "Address"}</Text>
+                    {isDefault ? <Text style={styles.defaultPill}>  DEFAULT</Text> : null}
+                  </View>
+                  <Text style={styles.addrLine}>
+                    {a.address_line}
+                    {a.city ? `, ${a.city}` : ""}
+                    {a.state ? `, ${a.state}` : ""}
+                    {a.pincode ? ` - ${a.pincode}` : ""}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
@@ -213,6 +233,7 @@ const styles = StyleSheet.create({
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
   radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
   addrLabel: { color: colors.text, fontWeight: "700", fontSize: 14 },
+  defaultPill: { color: colors.success, fontSize: 10, fontWeight: "700", letterSpacing: 0.6 },
   addrLine: { color: colors.textSecondary, fontSize: 12, marginTop: 4 },
   summary: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 18, marginTop: 24, borderWidth: 1, borderColor: colors.borderLight },
   summaryTitle: { fontSize: 15, fontWeight: "700", color: colors.text, marginBottom: 8 },
