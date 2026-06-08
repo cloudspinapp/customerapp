@@ -171,12 +171,12 @@ async def verify_otp(body: VerifyOtpBody):
         }
         await db.users.insert_one(user.copy())
         # Welcome notification
-        await add_notification(user["id"], "Welcome to FreshFold 🧺",
+        await add_notification(user["id"], "Welcome to CloudSpin 🧺",
                                "Thanks for joining! Browse services & schedule your first pickup.",
                                "welcome")
         try:
             await send_push([user["id"]], {
-                "title": "Welcome to FreshFold",
+                "title": "Welcome to CloudSpin",
                 "message": "Schedule your first pickup and enjoy clean laundry."
             })
         except Exception:
@@ -516,7 +516,7 @@ async def cloudspin_schedule_pickup(payload: dict):
 # ---------- Root ----------
 @api_router.get("/")
 async def root():
-    return {"message": "FreshFold Laundry API"}
+    return {"message": "CloudSpin Laundry API"}
 
 app.include_router(api_router)
 
@@ -534,7 +534,7 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup():
     await seed_data()
-    logger.info("FreshFold API started — seed complete")
+    logger.info("CloudSpin API started — seed complete")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

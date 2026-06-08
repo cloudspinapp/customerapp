@@ -1,4 +1,4 @@
-# FreshFold — Laundry Pickup App (PRD)
+# CloudSpin — Laundry Pickup App (PRD)
 
 ## Overview
 A mobile laundry pickup & delivery app. Users sign up with mobile number + OTP, select services, schedule pickup with date/time/address, and track orders with notifications.
@@ -31,7 +31,7 @@ All routes prefixed `/api`:
 ## Push Notification Setup (for production)
 To enable push delivery on Android devices:
 1. Click **Publish** → deploy
-2. Provide `google-services.json` from Firebase Console (package: `com.freshfold.app`)
+2. Provide `google-services.json` from Firebase Console (package: `com.cloudspin.app`)
 3. Generate Android/iOS builds via Emergent build flow
 Push will **not** work in Expo Go.
 

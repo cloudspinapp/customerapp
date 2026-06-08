@@ -1,22 +1,22 @@
 {
   "expo": {
-    "name": "FreshFold",
+    "name": "CloudSpin",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "freshfold",
+    "scheme": "cloudspin",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.freshfold.app",
+      "bundleIdentifier": "com.cloudspin.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Required to attach photos to your laundry orders"
       }
     },
     "android": {
-      "package": "com.freshfold.app",
+      "package": "com.cloudspin.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#3B82F6"

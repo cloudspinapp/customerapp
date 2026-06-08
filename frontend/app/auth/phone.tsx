@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
-  KeyboardAvoidingView, Platform, ScrollView, Alert,
+  KeyboardAvoidingView, Platform, ScrollView, Alert, Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -46,8 +46,10 @@ export default function PhoneScreen() {
       <ScrollView
         contentContainerStyle={[styles.container, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}
       >
-        <View style={styles.iconWrap}><Text style={styles.emoji}>🧺</Text></View>
-        <Text style={styles.title}>Welcome to FreshFold</Text>
+        <View style={styles.iconWrap}>
+          <Image source={{ uri: "https://cloudspin.in/public/images/logo.png" }} style={styles.logo} resizeMode="contain" />
+        </View>
+        <Text style={styles.title}>Welcome to CloudSpin</Text>
         <Text style={styles.subtitle}>Laundry, picked up & delivered fresh. Sign in with your mobile number to get started.</Text>
 
         <View style={styles.form}>
@@ -83,8 +85,8 @@ export default function PhoneScreen() {
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 24, alignItems: "center" },
-  iconWrap: { width: 72, height: 72, borderRadius: 24, backgroundColor: colors.primaryLight, alignItems: "center", justifyContent: "center", marginBottom: 24 },
-  emoji: { fontSize: 36 },
+  iconWrap: { width: 120, height: 120, marginBottom: 16, alignItems: "center", justifyContent: "center" },
+  logo: { width: 120, height: 120 },
   title: { fontSize: 30, fontWeight: "700", color: colors.text, letterSpacing: -0.5, textAlign: "center" },
   subtitle: { fontSize: 16, color: colors.textSecondary, marginTop: 10, lineHeight: 22, textAlign: "center", maxWidth: 360 },
   form: { marginTop: 36, alignSelf: "stretch", maxWidth: 420, alignItems: "stretch", width: "100%" },
