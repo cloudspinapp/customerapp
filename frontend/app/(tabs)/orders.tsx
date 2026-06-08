@@ -147,7 +147,7 @@ export default function OrdersScreen() {
                   <Text style={styles.dateVal}>{fmtDate(item.delivery_date)}</Text>
                 </View>
               </View>
-              {amt > 0 && <Text style={styles.cardTotal}>₹{amt}</Text>}
+              <Text style={styles.cardTotal}>₹{amt}</Text>
             </TouchableOpacity>
           );
         }}
