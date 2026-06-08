@@ -8,7 +8,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { colors, radius } from "@/src/lib/theme";
 import { api } from "@/src/lib/api";
 
-const SLOTS = ["08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00", "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00"];
+// 2-hour slots between 07:00 and 22:00 (10 PM)
+const SLOT_HOURS = [7, 9, 11, 13, 15, 17, 19]; // start hours; each slot is 2 hours
+const fmt12 = (h: number) => {
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hh = h % 12 === 0 ? 12 : h % 12;
+  return `${String(hh).padStart(2, "0")}:00 ${ampm}`;
+};
+const SLOTS = SLOT_HOURS.map((h) => `${fmt12(h)} - ${fmt12(h + 2)}`);
+const today = () => new Date().toISOString().slice(0, 10);
 
 function nextDates(n: number) {
   const out: { iso: string; dow: string; day: string; mon: string }[] = [];
@@ -34,10 +42,31 @@ export default function ScheduleScreen() {
   const dates = useMemo(() => nextDates(7), []);
   const [date, setDate] = useState<string>(dates[0]?.iso);
   const [slot, setSlot] = useState<string>("");
+  const [now, setNow] = useState<Date>(new Date());
   const [addresses, setAddresses] = useState<any[]>([]);
   const [addressId, setAddressId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [loadingAddr, setLoadingAddr] = useState(true);
+
+  // Re-check current time every minute so slots auto-disable as the day progresses.
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  // For today's date, only show slots whose START time is still in the future.
+  const visibleSlots = useMemo(() => {
+    if (date !== today()) return SLOTS;
+    const curMin = now.getHours() * 60 + now.getMinutes();
+    return SLOT_HOURS.filter((h) => h * 60 > curMin).map(
+      (h) => `${fmt12(h)} - ${fmt12(h + 2)}`,
+    );
+  }, [date, now]);
+
+  // Clear selection if the chosen slot just expired.
+  useEffect(() => {
+    if (slot && !visibleSlots.includes(slot)) setSlot("");
+  }, [visibleSlots, slot]);
 
   useEffect(() => {
     (async () => {
@@ -91,7 +120,7 @@ export default function ScheduleScreen() {
 
         <Text style={[styles.sectionTitle, { marginTop: 28 }]}>Select Time Slot</Text>
         <View style={styles.slotGrid}>
-          {SLOTS.map((s) => {
+          {visibleSlots.map((s) => {
             const active = slot === s;
             return (
               <TouchableOpacity key={s} testID={`slot-${s}`} onPress={() => setSlot(s)} style={[styles.slotChip, active && styles.activeChip]}>
@@ -99,6 +128,11 @@ export default function ScheduleScreen() {
               </TouchableOpacity>
             );
           })}
+          {visibleSlots.length === 0 && (
+            <Text style={styles.noSlotsText} testID="no-slots-msg">
+              No more slots today. Please pick a different date.
+            </Text>
+          )}
         </View>
 
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 28 }}>
@@ -168,6 +202,7 @@ const styles = StyleSheet.create({
   slotChip: { paddingHorizontal: 14, paddingVertical: 10, backgroundColor: colors.surface, borderRadius: 999, borderWidth: 1, borderColor: colors.borderLight, marginRight: 8, marginBottom: 8 },
   activeChip: { backgroundColor: colors.primary, borderColor: colors.primary },
   slotText: { color: colors.text, fontWeight: "600", fontSize: 13 },
+  noSlotsText: { color: colors.textSecondary, fontSize: 13, paddingVertical: 12 },
   linkText: { color: colors.primary, fontWeight: "600", fontSize: 13 },
   emptyAddr: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, alignItems: "center", marginTop: 12, borderWidth: 1, borderColor: colors.borderLight },
   emptyAddrText: { color: colors.textSecondary, marginTop: 8, marginBottom: 12 },
